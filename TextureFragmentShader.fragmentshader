@@ -1,0 +1,45 @@
+#version 330 core
+
+// Interpolated values from the vertex shaders
+in vec2 UV;
+in vec3 FragPos;
+in vec3 normal;
+
+uniform vec3 lightPos;
+uniform vec3 viewPos;
+uniform vec3 lightColor;
+
+// Ouput data
+out vec3 color;
+
+// verify texture
+uniform int textureCheck;
+
+// Values that stay constant for the whole mesh.
+uniform sampler2D myTextureSampler;
+
+vec3 norm = normalize(normal);
+vec3 lightDir = normalize(lightPos - FragPos);
+
+float specularStrength = 0.5;
+vec3 viewDir = normalize(viewPos - FragPos);
+vec3 reflectDir = reflect(-lightDir, norm);  
+float spec = pow(max(dot(viewDir, reflectDir), 0.0), 2);
+
+void main(){
+	// Output color = color of the texture at the specified UV
+	switch(textureCheck){
+		case 0:
+			color = specularStrength * spec * texture( myTextureSampler, UV ).rgb;
+			break;
+		case 1:
+			color = specularStrength * spec * vec3(0.7,0.7,0.7);
+			break;
+		case 2:
+			color = specularStrength * spec * vec3(1.0, 1.0, 0);
+			break;
+		default:
+			color = specularStrength * spec * vec3(0.3,0.3,0.3);
+			break;
+	}
+}
